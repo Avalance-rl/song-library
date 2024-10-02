@@ -1,0 +1,220 @@
+definitions:
+  add_song.Song:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  receive_lyrics.SongLyricsResponse:
+    properties:
+      current_page:
+        type: integer
+      lyrics:
+        items:
+          type: string
+        type: array
+      total_pages:
+        type: integer
+    type: object
+  remove_song.Song:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  update_song_data.UpdateSongRequest:
+    properties:
+      firstGroup:
+        type: string
+      firstSong:
+        type: string
+      group:
+        type: string
+      release_date:
+        type: string
+      song:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API Server for  online song library
+  title: Online song library
+  version: beta 0.1
+paths:
+  /song/library:
+    get:
+      description: Retrieves the user's entire song library, optionally filtered by
+        group, song, or release date.
+      parameters:
+      - description: Group name
+        in: query
+        name: group
+        type: string
+      - description: Song name
+        in: query
+        name: song
+        type: string
+      - description: Release date (YYYY-MM-DD)
+        in: query
+        name: releaseDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of songs
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Retrieve the user's song library
+      tags:
+      - songs
+  /song/lyrics:
+    get:
+      description: Returns the lyrics of the song, divided into pages.
+      parameters:
+      - description: group
+        in: query
+        name: group
+        required: true
+        type: string
+      - description: song
+        in: query
+        name: song
+        required: true
+        type: string
+      - description: Page number (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of verses per page (2 by default))
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lyrics by page
+          schema:
+            $ref: '#/definitions/receive_lyrics.SongLyricsResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      summary: Get the lyrics of the song
+      tags:
+      - lyrics
+  /song/remove:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a song from the repository by the name of the band and
+        the name of the song.
+      parameters:
+      - description: Data for deleting a song
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/remove_song.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The song was successfully deleted
+          schema:
+            type: string
+        "400":
+          description: Invalid request parameters
+          schema:
+            type: string
+        "404":
+          description: The song was not found
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      summary: Delete a song
+      tags:
+      - song
+  /song/update:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the song data in the repository based on the original song
+        data and new data.
+      parameters:
+      - description: Data for updating the song
+        in: body
+        name: updateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/update_song_data.UpdateSongRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: The song data has been successfully updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request parameters
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      summary: Update the song data
+      tags:
+      - songs
+  /songs:
+    post:
+      consumes:
+      - application/json
+      description: Adds a song with information about the band, name, release date,
+        lyrics and a link to YouTube
+      parameters:
+      - description: Information about the song
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/add_song.Song'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Song added successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid JSON format
+          schema:
+            type: string
+        "415":
+          description: Content-Type header is not application/json
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Add a new song
+      tags:
+      - song
+swagger: "2.0"
