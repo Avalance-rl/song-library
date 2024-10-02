@@ -4,12 +4,9 @@ tasks:
   init:
     cmds:
       - psql -U postgres -c "CREATE DATABASE effective_mobile;" || true
-      - export GOOSE_DRIVER=postgres
-      - export GOOSE_DBSTRING="postgres://postgres:postgres@localhost/effective_mobile?sslmode=disable"
-      - cd migrations && goose up
+
+      - goose -dir migrations up
 
   launch:
     cmds:
       - go run cmd/app/main.go
-
-
